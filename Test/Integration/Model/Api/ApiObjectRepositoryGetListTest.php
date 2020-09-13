@@ -188,14 +188,46 @@ EOT;
         );
     }
 
+    public function testHasAuthorizationBearerToken(): void
+    {
+        $mock = new MockHandler([
+            new Response(200, ['X-Foo' => 'Bar'], '{"apikey": "apivalue"}'),
+        ]);
+
+        $container = [];
+        $history = Middleware::history($container);
+        $handlerStack = HandlerStack::create($mock);
+        $handlerStack->push($history);
+        $client = new Client([
+            'handler' =>  $handlerStack
+        ]);
+
+        $this->getApiObjectRepository($client, 'https://example.com/api/correct-endpoint', 'test-token')
+            ->getList();
+
+        $transaction = $container[0];
+        /**
+         * @var Request $request
+         */
+        $request = $transaction['request'];
+
+        $this->assertSame(
+            'Bearer test-token',
+            $request->getHeaderLine('Authorization'),
+            'Bearer token value is incorrect'
+        );
+    }
+
     /**
      * @param Client $client
      * @var string $uri
+     * @var string $bearerToken
      * @return ApiObjectRepository|object
      */
     private function getApiObjectRepository(
         Client $client,
-        $uri = 'https://example.com/api/endpoint'
+        $uri = 'https://example.com/api/endpoint',
+        $bearerToken = ''
     )
     {
         $factory = new ApiObjectRepositoryInterfaceFactory($this->objectManager);
@@ -203,6 +235,7 @@ EOT;
             [
                 'httpClient'    => $client,
                 'uri'           => $uri,
+                'bearerToken'   => $bearerToken
             ]
         );
     }

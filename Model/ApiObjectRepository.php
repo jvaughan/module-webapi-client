@@ -13,6 +13,7 @@ class ApiObjectRepository implements ApiObjectRepositoryInterface
 {
     private Client $httpClient;
     private string $uri;
+    private string $bearerToken;
 
     private ApiObjectSearchResultsInterfaceFactory $apiObjectSearchResultsFactory;
     private ApiObjectInterfaceFactory $apiObjectFactory;
@@ -20,14 +21,16 @@ class ApiObjectRepository implements ApiObjectRepositoryInterface
 
     public function __construct(
         Client $httpClient,
-        $uri = '',
         ApiObjectSearchResultsInterfaceFactory $apiObjectSearchResultsFactory,
         ApiObjectInterfaceFactory $apiObjectFactory,
-        JsonSerializer $jsonSerializer
+        JsonSerializer $jsonSerializer,
+        $uri = '',
+        $bearerToken = ''
     )
     {
         $this->httpClient = $httpClient;
         $this->uri = $uri;
+        $this->bearerToken = $bearerToken;
         $this->apiObjectSearchResultsFactory = $apiObjectSearchResultsFactory;
         $this->apiObjectFactory = $apiObjectFactory;
         $this->jsonSerializer = $jsonSerializer;
@@ -41,7 +44,13 @@ class ApiObjectRepository implements ApiObjectRepositoryInterface
     public function getList()
     {
         $items = [];
-        $response = $this->httpClient->request('GET', $this->uri);
+        $response = $this->httpClient->request(
+            'GET',
+            $this->uri,
+            [
+                'headers' => ['Authorization' => 'Bearer ' . $this->bearerToken]
+            ]
+        );
         $body = $this->jsonSerializer->unserialize((string) $response->getBody());
 
         if (isset($body['items']) && count($body['items'])) {
