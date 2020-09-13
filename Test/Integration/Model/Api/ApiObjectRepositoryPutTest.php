@@ -2,6 +2,7 @@
 
 namespace JonVaughan\WebapiClient\Test\Integration\Model\Api;
 
+use JonVaughan\WebapiClient\Api\Data\ApiObjectInterface;
 use JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterface;
 use JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterfaceFactory;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterface;
