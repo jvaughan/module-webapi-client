@@ -1,6 +1,6 @@
 {
   "name": "jon-vaughan/module-webapi-client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Jon Vaughan's Web API Client Magento Module",
   "type": "magento2-module",
   "require": {
