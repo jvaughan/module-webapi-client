@@ -1,0 +1,21 @@
+{
+  "name": "jon-vaughan/module-webapi-client",
+  "version": "0.0.1",
+  "description": "Jon Vaughan's Web API Client Magento Module",
+  "type": "magento2-module",
+  "require": {
+    "magento/framework": "^103.0.0",
+    "guzzlehttp/guzzle": "~6.0"
+  },
+  "license": [
+    "BSD-3-Clause"
+  ],
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "JonVaughan\\WebapiClient\\": ""
+    }
+  }
+}
