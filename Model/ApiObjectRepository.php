@@ -40,6 +40,14 @@ class ApiObjectRepository implements ApiObjectRepositoryInterface
     }
 
     /**
+     * @return ApiObjectInterface
+     */
+    public function get()
+    {
+        return $this->getList()->getItems()[0];
+    }
+
+    /**
      * @return ApiObjectSearchResultsInterface
      * @throws \GuzzleHttp\Exception\GuzzleException
      */

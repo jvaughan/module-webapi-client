@@ -8,6 +8,11 @@ use JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterface;
 interface ApiObjectRepositoryInterface
 {
     /**
+     * @return ApiObjectInterface
+     */
+    public function get();
+
+    /**
      * Retrieve Config matching the specified criteria.
      * @return ApiObjectSearchResultsInterface
      * @throws \Magento\Framework\Exception\LocalizedException
