@@ -26,4 +26,12 @@ interface ApiObjectRepositoryInterface
     public function put(
         ApiObjectInterface $apiObject
     );
+
+    /**
+     * @param array $formParams
+     * @return ApiObjectInterface
+     */
+    public function postForm(
+        array $formParams
+    );
 }

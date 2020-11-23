@@ -101,4 +101,27 @@ class ApiObjectRepository implements ApiObjectRepositoryInterface
         );
         return $apiObject;
     }
+
+    /**
+     * @param array $formParams
+     * @return ApiObjectInterface
+     */
+    public function postForm(
+        array $formParams = []
+    ) {
+
+        $response = $this->httpClient->request(
+            'POST',
+            $this->uri,
+            [
+                'headers' => ['Authorization' => 'Bearer ' . $this->bearerToken],
+                'form_params' => $formParams,
+            ]
+        );
+        $responseBody = $this->jsonSerializer->unserialize((string) $response->getBody());
+
+        $apiObject = $this->apiObjectFactory->create();
+        $apiObject->setData($responseBody);
+        return $apiObject;
+    }
 }
