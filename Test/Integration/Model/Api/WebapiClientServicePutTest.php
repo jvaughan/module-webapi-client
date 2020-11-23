@@ -4,7 +4,7 @@ namespace JonVaughan\WebapiClient\Test\Integration\Model\Api;
 
 use JonVaughan\WebapiClient\Api\Data\ApiObjectInterface;
 use JonVaughan\WebapiClient\Api\WebapiClientServiceInterface;
-use JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterfaceFactory;
+use JonVaughan\WebapiClient\Api\WebapiClientServiceInterfaceFactory;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterface;
 use JonVaughan\WebapiClient\Model\WebapiClientService;
 
@@ -23,7 +23,7 @@ class WebapiClientServicePutTest extends \PHPUnit\Framework\TestCase
     /**
      * @var WebapiClientService
      */
-    private $apiObjectRepository;
+    private $webapiClientService;
 
     /**
      * @var \Magento\Framework\ObjectManagerInterface
@@ -42,11 +42,11 @@ class WebapiClientServicePutTest extends \PHPUnit\Framework\TestCase
         $this->apiObject = $this->objectManager->create(ApiObjectInterface::class);
     }
 
-    public function testRepositoryInterfaceFactoryReturnsInterface(): void
+    public function testClientServiceFactoryReturnsClientService(): void
     {
         $this->assertInstanceOf(
             WebapiClientServiceInterface::class,
-            $this->getApiObjectRepository(
+            $this->getWebapiClientService(
                 $this->getMockClient()
             )
         );
@@ -57,7 +57,7 @@ class WebapiClientServicePutTest extends \PHPUnit\Framework\TestCase
         $container = [];
         $client = $this->getMockClient($container);
 
-        $this->getApiObjectRepository($client)
+        $this->getWebapiClientService($client)
             ->put($this->apiObject);
 
         $this->assertCount(
@@ -81,7 +81,7 @@ class WebapiClientServicePutTest extends \PHPUnit\Framework\TestCase
             'handler' =>  $handlerStack
         ]);
 
-        $this->getApiObjectRepository($client, 'https://example.com/api/correct-endpoint')
+        $this->getWebapiClientService($client, 'https://example.com/api/correct-endpoint')
             ->put($this->apiObject);
 
         $transaction = $container[0];
@@ -130,7 +130,7 @@ class WebapiClientServicePutTest extends \PHPUnit\Framework\TestCase
             'key1'  => 'value1',
         ]);
 
-        $this->getApiObjectRepository($client, 'https://example.com/api/correct-endpoint')
+        $this->getWebapiClientService($client, 'https://example.com/api/correct-endpoint')
             ->put($this->apiObject);
 
         $transaction = $container[0];
@@ -167,7 +167,7 @@ EOT;
             'handler' =>  $handlerStack
         ]);
 
-        $this->getApiObjectRepository($client, 'https://example.com/api/correct-endpoint', 'test-token')
+        $this->getWebapiClientService($client, 'https://example.com/api/correct-endpoint', 'test-token')
             ->put($this->apiObject);
 
         $transaction = $container[0];
@@ -189,12 +189,12 @@ EOT;
      *@var string $bearerToken
      * @var string $uri
      */
-    private function getApiObjectRepository(
+    private function getWebapiClientService(
         Client $client,
         $uri = 'https://example.com/api/endpoint',
         $bearerToken = ''
     ) {
-        $factory = new ApiObjectRepositoryInterfaceFactory($this->objectManager);
+        $factory = new WebapiClientServiceInterfaceFactory($this->objectManager);
         return $factory->create(
             [
                 'httpClient'    => $client,

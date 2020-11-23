@@ -4,7 +4,7 @@ namespace JonVaughan\WebapiClient\Test\Integration\Model\Api;
 
 use JonVaughan\WebapiClient\Api\Data\ApiObjectInterface;
 use JonVaughan\WebapiClient\Api\WebapiClientServiceInterface;
-use JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterfaceFactory;
+use JonVaughan\WebapiClient\Api\WebapiClientServiceInterfaceFactory;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterface;
 use JonVaughan\WebapiClient\Model\WebapiClientService;
 
@@ -37,11 +37,11 @@ class WebapiClientServicePostFormTest extends \PHPUnit\Framework\TestCase
         $this->apiObject = $this->objectManager->create(ApiObjectInterface::class);
     }
 
-    public function testRepositoryInterfaceFactoryReturnsInterface(): void
+    public function testClientServiceFactoryReturnsClientService(): void
     {
         $this->assertInstanceOf(
             WebapiClientServiceInterface::class,
-            $this->getApiObjectRepository(
+            $this->getWebapiClientService(
                 $this->getMockClient()
             )
         );
@@ -52,7 +52,7 @@ class WebapiClientServicePostFormTest extends \PHPUnit\Framework\TestCase
         $container = [];
         $client = $this->getMockClient($container);
 
-        $this->getApiObjectRepository($client)
+        $this->getWebapiClientService($client)
             ->postForm([]);
 
         $this->assertCount(
@@ -76,7 +76,7 @@ class WebapiClientServicePostFormTest extends \PHPUnit\Framework\TestCase
             'handler' =>  $handlerStack
         ]);
 
-        $this->getApiObjectRepository($client, 'https://example.com/api/correct-endpoint')
+        $this->getWebapiClientService($client, 'https://example.com/api/correct-endpoint')
             ->postForm([]);
 
         $transaction = $container[0];
@@ -125,7 +125,7 @@ class WebapiClientServicePostFormTest extends \PHPUnit\Framework\TestCase
             'key1'  => 'value1',
         ]);
 
-        $this->getApiObjectRepository($client, 'https://example.com/api/correct-endpoint')
+        $this->getWebapiClientService($client, 'https://example.com/api/correct-endpoint')
             ->postForm([
                 'form_param_1' => 'form_param_value_1',
                 'form_param_2' => 'form_param_value_2',
@@ -157,7 +157,7 @@ class WebapiClientServicePostFormTest extends \PHPUnit\Framework\TestCase
             'handler' =>  $handlerStack
         ]);
 
-        $this->getApiObjectRepository($client, 'https://example.com/api/correct-endpoint', 'test-token')
+        $this->getWebapiClientService($client, 'https://example.com/api/correct-endpoint', 'test-token')
             ->postForm([]);
 
         $transaction = $container[0];
@@ -179,12 +179,12 @@ class WebapiClientServicePostFormTest extends \PHPUnit\Framework\TestCase
      *@var string $bearerToken
      * @var string $uri
      */
-    private function getApiObjectRepository(
+    private function getWebapiClientService(
         Client $client,
         $uri = 'https://example.com/api/endpoint',
         $bearerToken = ''
     ) {
-        $factory = new ApiObjectRepositoryInterfaceFactory($this->objectManager);
+        $factory = new WebapiClientServiceInterfaceFactory($this->objectManager);
         return $factory->create(
             [
                 'httpClient'    => $client,
