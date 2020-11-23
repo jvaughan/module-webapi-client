@@ -5,7 +5,7 @@ namespace JonVaughan\WebapiClient\Api;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectInterface;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterface;
 
-interface ApiObjectRepositoryInterface
+interface WebapiClientServiceInterface
 {
     /**
      * @return ApiObjectInterface

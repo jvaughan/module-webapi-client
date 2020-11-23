@@ -2,10 +2,13 @@
 
 namespace JonVaughan\WebapiClient\Test\Integration\Model\Api;
 
-use JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterface;
+use JonVaughan\WebapiClient\Api\Data\ApiObjectInterface;
+use JonVaughan\WebapiClient\Api\WebapiClientServiceInterface;
 use JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterfaceFactory;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterface;
-use JonVaughan\WebapiClient\Model\ApiObjectRepository;
+use JonVaughan\WebapiClient\Model\WebapiClientService;
+
+use Magento\Framework\Api\SearchCriteriaInterface;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
@@ -15,23 +18,34 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\RequestException;
 
-class ApiObjectRepositoryGetTest extends \PHPUnit\Framework\TestCase
+class WebapiClientServicePutTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @var WebapiClientService
+     */
+    private $apiObjectRepository;
+
     /**
      * @var \Magento\Framework\ObjectManagerInterface
      */
     private $objectManager;
 
+    /**
+     * @var ApiObjectInterface
+     */
+    private $apiObject;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->objectManager = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
+        $this->apiObject = $this->objectManager->create(ApiObjectInterface::class);
     }
 
     public function testRepositoryInterfaceFactoryReturnsInterface(): void
     {
         $this->assertInstanceOf(
-            ApiObjectRepositoryInterface::class,
+            WebapiClientServiceInterface::class,
             $this->getApiObjectRepository(
                 $this->getMockClient()
             )
@@ -43,7 +57,8 @@ class ApiObjectRepositoryGetTest extends \PHPUnit\Framework\TestCase
         $container = [];
         $client = $this->getMockClient($container);
 
-        $this->getApiObjectRepository($client)->getList();
+        $this->getApiObjectRepository($client)
+            ->put($this->apiObject);
 
         $this->assertCount(
             1,
@@ -52,7 +67,7 @@ class ApiObjectRepositoryGetTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testGetsCorrectUrl(): void
+    public function testPutsCorrectUrl(): void
     {
         $mock = new MockHandler([
             new Response(200, ['X-Foo' => 'Bar'], '{"apikey": "apivalue"}'),
@@ -67,7 +82,7 @@ class ApiObjectRepositoryGetTest extends \PHPUnit\Framework\TestCase
         ]);
 
         $this->getApiObjectRepository($client, 'https://example.com/api/correct-endpoint')
-            ->get();
+            ->put($this->apiObject);
 
         $transaction = $container[0];
         /**
@@ -76,9 +91,9 @@ class ApiObjectRepositoryGetTest extends \PHPUnit\Framework\TestCase
         $request = $transaction['request'];
 
         $this->assertSame(
-            'GET',
+            'PUT',
             $request->getMethod(),
-            'Method should be GET'
+            'Method should be PUT'
         );
         $this->assertSame(
             'https',
@@ -97,29 +112,44 @@ class ApiObjectRepositoryGetTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testCanReturnOneAoInterface(): void
+    public function testRequestBodyHasCorrectJson(): void
     {
-        $client = $this->getMockClient();
-        $items = $this->getApiObjectRepository($client)->get();
-    }
+        $mock = new MockHandler([
+            new Response(200, ['X-Foo' => 'Bar'], '{"apikey": "apivalue"}'),
+        ]);
 
-    public function testCanReturnOneApiObjectWithData(): void
-    {
-        $client = $this->getMockClient();
+        $container = [];
+        $history = Middleware::history($container);
+        $handlerStack = HandlerStack::create($mock);
+        $handlerStack->push($history);
+        $client = new Client([
+            'handler' =>  $handlerStack
+        ]);
 
-        $result = $this->getApiObjectRepository($client)->getList();
-        $this->assertCount(1, $result->getItems());
+        $this->apiObject->setData([
+            'key1'  => 'value1',
+        ]);
 
-        $items = $result->getItems();
-        $item = $items[0];
-        $this->assertInstanceOf(
-            \JonVaughan\WebapiClient\Api\Data\ApiObjectInterface::class,
-            $item
+        $this->getApiObjectRepository($client, 'https://example.com/api/correct-endpoint')
+            ->put($this->apiObject);
+
+        $transaction = $container[0];
+        /**
+         * @var Request $request
+         */
+        $request = $transaction['request'];
+
+        $this->assertJson(
+            (string) $request->getBody(),
+            'body is not valid JSON'
         );
 
-        $this->assertSame(
-            ['apikey'  => 'apivalue'],
-            $item->getData()
+        $expectedJson = <<<EOT
+{"key1": "value1"}
+EOT;
+        $this->assertJsonStringEqualsJsonString(
+            $expectedJson,
+            (string) $request->getBody()
         );
     }
 
@@ -138,7 +168,7 @@ class ApiObjectRepositoryGetTest extends \PHPUnit\Framework\TestCase
         ]);
 
         $this->getApiObjectRepository($client, 'https://example.com/api/correct-endpoint', 'test-token')
-            ->getList();
+            ->put($this->apiObject);
 
         $transaction = $container[0];
         /**
@@ -155,9 +185,9 @@ class ApiObjectRepositoryGetTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @param Client $client
+     * @return WebapiClientService|object
+     *@var string $bearerToken
      * @var string $uri
-     * @var string $bearerToken
-     * @return ApiObjectRepository|object
      */
     private function getApiObjectRepository(
         Client $client,

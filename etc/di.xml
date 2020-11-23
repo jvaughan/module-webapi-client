@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <preference for="JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterface" type="JonVaughan\WebapiClient\Model\ApiObjectRepository"/>
+    <preference for="JonVaughan\WebapiClient\Api\WebapiClientServiceInterface" type="JonVaughan\WebapiClient\Model\WebapiClientService"/>
     <preference for="JonVaughan\WebapiClient\Api\Data\ApiObjectInterface" type="JonVaughan\WebapiClient\Model\Data\ApiObject"/>
     <preference for="JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterface" type="JonVaughan\WebapiClient\Model\ApiObjectSearchResults"/>
 </config>
