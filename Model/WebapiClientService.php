@@ -114,7 +114,10 @@ class WebapiClientService implements WebapiClientServiceInterface
             'POST',
             $this->uri,
             [
-                'headers' => ['Authorization' => 'Bearer ' . $this->bearerToken],
+                'headers' => [
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                    'Authorization' => 'Bearer ' . $this->bearerToken
+                ],
                 'form_params' => $formParams,
             ]
         );
