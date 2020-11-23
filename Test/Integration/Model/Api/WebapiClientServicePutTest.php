@@ -3,10 +3,10 @@
 namespace JonVaughan\WebapiClient\Test\Integration\Model\Api;
 
 use JonVaughan\WebapiClient\Api\Data\ApiObjectInterface;
-use JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterface;
+use JonVaughan\WebapiClient\Api\WebapiClientServiceInterface;
 use JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterfaceFactory;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterface;
-use JonVaughan\WebapiClient\Model\ApiObjectRepository;
+use JonVaughan\WebapiClient\Model\WebapiClientService;
 
 use Magento\Framework\Api\SearchCriteriaInterface;
 
@@ -18,10 +18,10 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\RequestException;
 
-class ApiObjectRepositoryPutTest extends \PHPUnit\Framework\TestCase
+class WebapiClientServicePutTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @var ApiObjectRepository
+     * @var WebapiClientService
      */
     private $apiObjectRepository;
 
@@ -45,7 +45,7 @@ class ApiObjectRepositoryPutTest extends \PHPUnit\Framework\TestCase
     public function testRepositoryInterfaceFactoryReturnsInterface(): void
     {
         $this->assertInstanceOf(
-            ApiObjectRepositoryInterface::class,
+            WebapiClientServiceInterface::class,
             $this->getApiObjectRepository(
                 $this->getMockClient()
             )
@@ -185,9 +185,9 @@ EOT;
 
     /**
      * @param Client $client
+     * @return WebapiClientService|object
+     *@var string $bearerToken
      * @var string $uri
-     * @var string $bearerToken
-     * @return ApiObjectRepository|object
      */
     private function getApiObjectRepository(
         Client $client,

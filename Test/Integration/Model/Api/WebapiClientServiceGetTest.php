@@ -2,12 +2,10 @@
 
 namespace JonVaughan\WebapiClient\Test\Integration\Model\Api;
 
-use JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterface;
+use JonVaughan\WebapiClient\Api\WebapiClientServiceInterface;
 use JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterfaceFactory;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterface;
-use JonVaughan\WebapiClient\Model\ApiObjectRepository;
-
-use Magento\Framework\Api\SearchCriteriaInterface;
+use JonVaughan\WebapiClient\Model\WebapiClientService;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
@@ -17,13 +15,8 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\RequestException;
 
-class ApiObjectRepositoryGetListTest extends \PHPUnit\Framework\TestCase
+class WebapiClientServiceGetTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var ApiObjectRepository
-     */
-    private $apiObjectRepository;
-
     /**
      * @var \Magento\Framework\ObjectManagerInterface
      */
@@ -38,7 +31,7 @@ class ApiObjectRepositoryGetListTest extends \PHPUnit\Framework\TestCase
     public function testRepositoryInterfaceFactoryReturnsInterface(): void
     {
         $this->assertInstanceOf(
-            ApiObjectRepositoryInterface::class,
+            WebapiClientServiceInterface::class,
             $this->getApiObjectRepository(
                 $this->getMockClient()
             )
@@ -74,7 +67,7 @@ class ApiObjectRepositoryGetListTest extends \PHPUnit\Framework\TestCase
         ]);
 
         $this->getApiObjectRepository($client, 'https://example.com/api/correct-endpoint')
-            ->getList();
+            ->get();
 
         $transaction = $container[0];
         /**
@@ -107,26 +100,7 @@ class ApiObjectRepositoryGetListTest extends \PHPUnit\Framework\TestCase
     public function testCanReturnOneAoInterface(): void
     {
         $client = $this->getMockClient();
-        $items = $this->getApiObjectRepository($client)->getList();
-    }
-
-    public function testReturnsSearchResults(): void
-    {
-        $mock = new MockHandler([
-            new Response(200, ['X-Foo' => 'Bar'], '{"apikey": "apivalue"}'),
-        ]);
-
-        $handlerStack = HandlerStack::create($mock);
-        $client = new Client([
-            'handler' =>  $handlerStack
-        ]);
-
-        $result = $this->getApiObjectRepository($client)->getList();
-
-        $this->assertInstanceOf(
-            ApiObjectSearchResultsInterface::class,
-            $result
-        );
+        $items = $this->getApiObjectRepository($client)->get();
     }
 
     public function testCanReturnOneApiObjectWithData(): void
@@ -146,49 +120,6 @@ class ApiObjectRepositoryGetListTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(
             ['apikey'  => 'apivalue'],
             $item->getData()
-        );
-    }
-
-    public function testReturnsMultipleItems(): void
-    {
-        $jsonResponse = <<<EOT
-{
-    "items": [
-        {
-            "item1_key1": "item1 key1 value",
-            "item1_key2": "item1 key2 value"
-        },
-        {
-            "item2_key1": "item2 key1 value",
-            "item2_key2": "item2 key2 value"
-        }
-    ]
-}
-EOT;
-        $mockHandler = new MockHandler([
-            new Response(200, ['X-Foo' => 'Bar'], $jsonResponse),
-        ]);
-
-        $container = [];
-        $client = $this->getMockClient($container, $mockHandler);
-
-        $items = $this->getApiObjectRepository($client)
-            ->getList()
-            ->getItems();
-
-        $this->assertSame(
-            [
-                'item1_key1'   => 'item1 key1 value',
-                'item1_key2'   => 'item1 key2 value',
-            ],
-            $items[0]->getData()
-        );
-        $this->assertSame(
-            [
-                'item2_key1'   => 'item2 key1 value',
-                'item2_key2'   => 'item2 key2 value',
-            ],
-            $items[1]->getData()
         );
     }
 
@@ -224,9 +155,9 @@ EOT;
 
     /**
      * @param Client $client
+     * @return WebapiClientService|object
+     *@var string $bearerToken
      * @var string $uri
-     * @var string $bearerToken
-     * @return ApiObjectRepository|object
      */
     private function getApiObjectRepository(
         Client $client,

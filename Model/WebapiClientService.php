@@ -2,7 +2,7 @@
 
 namespace JonVaughan\WebapiClient\Model;
 
-use JonVaughan\WebapiClient\Api\ApiObjectRepositoryInterface;
+use JonVaughan\WebapiClient\Api\WebapiClientServiceInterface;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterface;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterfaceFactory;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectInterfaceFactory;
@@ -12,7 +12,7 @@ use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 
 use GuzzleHttp\Client;
 
-class ApiObjectRepository implements ApiObjectRepositoryInterface
+class WebapiClientService implements WebapiClientServiceInterface
 {
     private Client $httpClient;
     private string $uri;
@@ -37,6 +37,14 @@ class ApiObjectRepository implements ApiObjectRepositoryInterface
         $this->apiObjectFactory = $apiObjectFactory;
         $this->jsonSerializer = $jsonSerializer;
 //        $this->apiObjectSearchResultsFactory->create();
+    }
+
+    /**
+     * @return ApiObjectInterface
+     */
+    public function get()
+    {
+        return $this->getList()->getItems()[0];
     }
 
     /**
@@ -91,6 +99,29 @@ class ApiObjectRepository implements ApiObjectRepositoryInterface
                 'body'  => $body,
             ]
         );
+        return $apiObject;
+    }
+
+    /**
+     * @param array $formParams
+     * @return ApiObjectInterface
+     */
+    public function postForm(
+        array $formParams = []
+    ) {
+
+        $response = $this->httpClient->request(
+            'POST',
+            $this->uri,
+            [
+                'headers' => ['Authorization' => 'Bearer ' . $this->bearerToken],
+                'form_params' => $formParams,
+            ]
+        );
+        $responseBody = $this->jsonSerializer->unserialize((string) $response->getBody());
+
+        $apiObject = $this->apiObjectFactory->create();
+        $apiObject->setData($responseBody);
         return $apiObject;
     }
 }

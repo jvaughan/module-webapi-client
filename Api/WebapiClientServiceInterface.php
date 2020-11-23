@@ -5,8 +5,13 @@ namespace JonVaughan\WebapiClient\Api;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectInterface;
 use JonVaughan\WebapiClient\Api\Data\ApiObjectSearchResultsInterface;
 
-interface ApiObjectRepositoryInterface
+interface WebapiClientServiceInterface
 {
+    /**
+     * @return ApiObjectInterface
+     */
+    public function get();
+
     /**
      * Retrieve Config matching the specified criteria.
      * @return ApiObjectSearchResultsInterface
@@ -20,5 +25,13 @@ interface ApiObjectRepositoryInterface
      */
     public function put(
         ApiObjectInterface $apiObject
+    );
+
+    /**
+     * @param array $formParams
+     * @return ApiObjectInterface
+     */
+    public function postForm(
+        array $formParams
     );
 }
