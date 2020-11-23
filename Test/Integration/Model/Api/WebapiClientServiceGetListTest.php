@@ -225,7 +225,7 @@ EOT;
     /**
      * @param Client $client
      * @return WebapiClientService|object
-     *@var string $bearerToken
+     * @var string $bearerToken
      * @var string $uri
      */
     private function getWebapiClientService(
