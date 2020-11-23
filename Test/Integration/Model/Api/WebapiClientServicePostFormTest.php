@@ -173,10 +173,40 @@ class WebapiClientServicePostFormTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    public function testRequestContentType(): void
+    {
+        $mock = new MockHandler([
+            new Response(200, ['X-Foo' => 'Bar'], '{"apikey": "apivalue"}'),
+        ]);
+
+        $container = [];
+        $history = Middleware::history($container);
+        $handlerStack = HandlerStack::create($mock);
+        $handlerStack->push($history);
+        $client = new Client([
+            'handler' =>  $handlerStack
+        ]);
+
+        $this->getWebapiClientService($client, 'https://example.com/api/correct-endpoint', 'test-token')
+            ->postForm([]);
+
+        $transaction = $container[0];
+        /**
+         * @var Request $request
+         */
+        $request = $transaction['request'];
+
+        $this->assertSame(
+            'application/x-www-form-urlencoded',
+            $request->getHeaderLine('Content-Type'),
+            'Content-Type should be application/x-www-form-urlencoded'
+        );
+    }
+
     /**
      * @param Client $client
      * @return WebapiClientService|object
-     *@var string $bearerToken
+     * @var string $bearerToken
      * @var string $uri
      */
     private function getWebapiClientService(
